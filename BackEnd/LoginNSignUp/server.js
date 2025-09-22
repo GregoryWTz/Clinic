@@ -14,22 +14,20 @@ function loadData() {
 
 const server = http.createServer((req, res) => {
     if (req.method === 'GET' && req.url === '/') {
-        // ambil index.html
+        res.writeHead(302, { Location: '/login' });
+        res.end();
+    }
+
+    else if (req.method === 'GET' && req.url === '/login') {
+        // tampilkan login.html
         fs.readFile('login.html', 'utf-8', (err, content) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Error loading file');
+                res.end('Error loading login page');
             } else {
-                // login page
-                let data = loadData();
-
-                // checking if user is logged in
-                // if yes, bring to home page
-                // if not, immidiately show login page
-                // this is where it checks user inputs if it matches the data in patients.json
-            }
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(content);
+            }  
         });
     }
 
@@ -61,16 +59,8 @@ const server = http.createServer((req, res) => {
             }
             
             if (user) {
-                // login success → load home.html
-                fs.readFile('home.html', 'utf-8', (err, homeContent) => {
-                    if (err) {
-                        res.writeHead(500, { 'Content-Type': 'text/plain' });
-                        res.end('Error loading home page');
-                    } else {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.end(homeContent);
-                    }
-                });
+                res.writeHead(302, { Location: '/home' });
+                res.end();
             } else {
                 // login fail → reload login.html + error
                 fs.readFile('login.html', 'utf-8', (err, loginContent) => {
@@ -112,30 +102,47 @@ const server = http.createServer((req, res) => {
             const email = params.get('email');
             const phone = params.get('phone');
             const birthdate = params.get('birthdate');
+            const confirmPassword = params.get('confirmPassword');
 
             let data = loadData();
 
-            // check if username already exists
-            let exists = data.find(u => u.username === username);
-            if (exists) {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end('<p style="color:red;">Username already exists. Please try another.</p>');
-                return;
+            if (password !== confirmPassword) {
+                fs.readFile('signup.html', 'utf-8', (err, loginContent) => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error loading login page');
+                    } else {
+                        res.writeHead(200, { 'Content-Type': 'text/html' });
+                        res.end(loginContent + '<p style="color:red;">Password did not match</p>');
+                    }
+                });
+            } else {
+                // add new user
+                let newUser = { username, password, email, phone, birthdate };
+                data.push(newUser);
+
+                fs.writeFile('patients.json', JSON.stringify(data, null, 2), (err) => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error saving user');
+                    } else {
+                        res.writeHead(302, { Location: '/' });
+                        res.end();
+                    }
+                });
             }
+        });
+    }
 
-            // add new user
-            let newUser = { username, password, email, phone, birthdate };
-            data.push(newUser);
-
-            fs.writeFile('patients.json', JSON.stringify(data, null, 2), (err) => {
-                if (err) {
-                    res.writeHead(500, { 'Content-Type': 'text/plain' });
-                    res.end('Error saving user');
-                } else {
-                    res.writeHead(302, { Location: '/' });
-                    res.end();
-                }
-            });
+    else if (req.method === 'GET' && req.url === '/home') {
+        fs.readFile('home.html', 'utf-8', (err, homeContent) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Error loading home page');
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(homeContent);
+            }
         });
     }
     
