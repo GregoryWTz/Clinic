@@ -97,12 +97,16 @@ const server = http.createServer((req, res) => {
 
         req.on('end', () => {
             const params = new URLSearchParams(body);
-            const username = params.get('username');
+            const firstname = params.get('firstname');
+            const lastname = params.get('lastname');
             const password = params.get('password');
+            const confirmPassword = params.get('confirmPassword');
             const email = params.get('email');
             const phone = params.get('phone');
+            const address = params.get('address');
             const birthdate = params.get('birthdate');
-            const confirmPassword = params.get('confirmPassword');
+            const gender = params.get('gender');
+            const bloodType = params.get('bloodtype');
 
             let data = loadData();
 
@@ -117,8 +121,30 @@ const server = http.createServer((req, res) => {
                     }
                 });
             } else {
+                // // check if username already exists
+                // let exists = data.find(u => u.username === username);
+                // if (exists) {
+                //     res.writeHead(200, { 'Content-Type': 'text/html' });
+                //     res.end('<p style="color:red;">Username already exists. Please try another.</p>');
+                //     return;
+                // }
+
                 // add new user
-                let newUser = { username, password, email, phone, birthdate };
+                
+                // 🔹 Generate auto-increment ID with "PS" prefix
+                let newIdNumber = 1;
+                if (data.length > 0) {
+                    let lastUser = data[data.length - 1];
+                    // Extract the numeric part from ID (e.g., "PS005" → 5)
+                    let lastIdNum = parseInt(lastUser.id.replace("PS", ""));
+                    newIdNumber = lastIdNum + 1;
+                }
+
+                // Format like PS001, PS002, ...
+                let newId = "PS" + String(newIdNumber).padStart(3, "0");
+
+                // add new user with id
+                let newUser = { id: newId, firstname, lastname, password, email, phone, address, birthdate, gender, bloodType};
                 data.push(newUser);
 
                 fs.writeFile('patients.json', JSON.stringify(data, null, 2), (err) => {
