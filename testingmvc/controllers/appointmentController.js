@@ -1,0 +1,56 @@
+const Doctor = require("../models/doctor");
+const Appointment = require("../models/appointment");
+
+async function createAppointment(data){
+    try{
+        let id = "";
+        const checkempty = await Appointment.findAndCountAll();
+        console.log(checkempty);
+        if(checkempty.count <= 0){
+            id = "AP001";
+        }
+        else{
+            const last = await Appointment.findOne({
+                order: [["id_appointment", "DESC"]]
+            });
+            console.log(last);
+            const newNum = parseInt(last.id_appointment.slice(2), 10) + 1;
+            id = "AP" + String(newNum).padStart(3, '0');
+            
+
+        }
+        const appointmentLast = await Appointment.findOne({
+            where: {
+                appointment_date : data.appointment_date,
+                appointment_time : data.appointment_time,
+                id_doctor: data.id_doctor
+            },
+            order: [["queue", "DESC"]]
+        });
+        console.log(appointmentLast);
+        let Nqueue;
+        if(appointmentLast){
+            Nqueue = appointmentLast.queue + 1
+        }
+        else{
+            Nqueue = 1
+        }
+        const apt = await Appointment.create({
+            id_appointment : id,
+            id_doctor : data.id_doctor,
+            id_patient : data.id_patient,
+            queue : Nqueue,
+            appointment_date : data.appointment_date,
+            appointment_time : data.appointment_time,
+            status : "SCHEDULE",
+            
+        });
+        return apt;
+    }
+    catch(err){
+        throw err;
+    }
+    
+}
+
+module.exports = {createAppointment}

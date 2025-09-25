@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Appointment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="mb-4">Create Appointment</h2>
+    <form id="appointmentForm" method="post" action="/createappointment">
+      <!-- <div class="mb-3"> -->
+        <!-- <label for="id_appointment" class="form-label">Appointment ID</label> -->
+        <input type="text" class="form-control" id="id_doctor" name="id_doctor" required>
+      <!-- </div> -->
+
+      <div class="mb-3">
+        <label for="id_doctor" class="form-label">Nama Dokter</label>
+        <input type="text" class="form-control" id="nama_doctor" name="nama_doctor" required>
+      </div>
+
+      <!-- <div class="mb-3"> -->
+        <!-- <label for="id_patient" class="form-label">Patient ID</label> -->
+        <input type="text" class="form-control" id="id_patient" name="id_patient" value="P001" required>
+      <!-- </div> -->
+
+      <!-- <div class="mb-3">
+        <label for="queue" class="form-label">Queue Number</label>
+        <input type="number" class="form-control" id="queue" name="queue" required>
+      </div> -->
+
+      <div class="mb-3">
+        <label for="appointment_date" class="form-label">Date</label>
+        <input type="date" class="form-control" id="appointment_date" name="appointment_date" required>
+      </div>
+
+      <div class="mb-3">
+  <label for="appointment_time" class="form-label">Time</label>
+  <select class="form-select" id="appointment_time" name="appointment_time" required>
+    <option value="default" selected>-- Select a time --</option>
+    <option value="09:00">09:00 AM</option>
+    <option value="13:00">01:00 PM</option>
+    <option value="16:00">04:00 PM</option>
+  </select>
+</div>
+      
+      <!-- <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status" required>
+          <option value="Scheduled">Scheduled</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div> -->
+
+      <button type="submit" class="btn btn-primary">Create Appointment</button>
+    </form>
+  </div>
+
+  <script>
+
+    const doctor = <!--DOCTOR_DATA-->;
+    const input = document.getElementById("nama_doctor");
+    const id_doctor = document.getElementById("id_doctor");
+    input.value = doctor.name;
+    id_doctor.value = doctor.id_doctor;
+    input.disabled  = true;   
+
+
+  </script>
+</body>
+</html>
