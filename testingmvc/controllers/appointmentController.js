@@ -1,6 +1,39 @@
 const Doctor = require("../models/doctor");
 const Appointment = require("../models/appointment");
 
+async function getAllSchedule(idPK) {
+    try{
+        const apt = await Appointment.findAll({
+            include: Doctor,
+            where: {
+                id_patient: idPK,
+                status: "SCHEDULE"
+            }
+        });
+        return apt;
+    }
+    catch(err){
+        throw err;
+    }
+}
+
+async function deleteSchedule(idPK){
+    try{
+            await Appointment.destroy({
+            where: {
+                id_appointment: idPK
+            }
+        });
+
+        return true
+    }
+    catch(err){
+        throw err;
+    }
+    
+
+}
+
 async function createAppointment(data){
     try{
         let id = "";
@@ -53,4 +86,4 @@ async function createAppointment(data){
     
 }
 
-module.exports = {createAppointment}
+module.exports = {createAppointment, getAllSchedule, deleteSchedule}

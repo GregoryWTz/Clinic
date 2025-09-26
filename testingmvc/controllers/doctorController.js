@@ -4,10 +4,7 @@ const Category = require("../models/category");
 async function getAllDoctor(){
     try{
         const doctors = await Doctor.findAll({
-            include: {
-                model: Category,
-                as: "category",
-            },
+            include: Category
         });
         return doctors;
     }

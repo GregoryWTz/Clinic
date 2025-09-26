@@ -1,6 +1,3 @@
-
-
-
 const sequelize = require("./koneksi");
 const DoctorController = require("./controllers/doctorController");
 const categoryController = require("./controllers/categoryController");
@@ -97,7 +94,7 @@ const server = http.createServer((req, res) => {
             try{
                 appointmentController.createAppointment(formData).then(apt =>{
                     // console.log(apt);
-                    res.writeHead(302, {"Location" : "/doctors"});
+                    res.writeHead(302, {"Location" : "/appointmentlist"});
                     res.end();
                 });
                 
@@ -108,6 +105,50 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+    }
+    else if (req.url  === "/appointmentlist" && req.method === "GET") {
+        fs.readFile(path.join(__dirname, "views", "appointmentList.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+                
+                try{
+                    appointmentController.getAllSchedule("P001").then(apt=>{
+                        const html = data.toString().replace("<!--APPOINTMENT_DATA-->", JSON.stringify(apt));
+                        res.writeHead(200, {"Content-Type":"text/html"});
+                        res.write(html);
+                    });
+             
+                  
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+                    
+            }
+        });
+        
+    }
+    else if (urlsplit[2] === "delete" && urlsplit[1] === "appointmentlist" && req.method === "GET") {
+        const id = urlsplit[3]; 
+        try{
+                appointmentController.deleteSchedule(id).then(apt =>{
+                    // console.log(apt);
+                    res.writeHead(302, {"Location" : "/appointmentlist"});
+                    res.end();
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
     }
 });
 server.listen(3000, ()=> {

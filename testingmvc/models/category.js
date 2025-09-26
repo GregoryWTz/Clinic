@@ -1,8 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require("../koneksi");
-const Doctor = require("./doctor");
 
-const Category = sequelize.define("categories",{
+const Category = sequelize.define("Category",{
     id_category:{
         type: DataTypes.STRING,
         primaryKey: true,
