@@ -3,7 +3,7 @@ const sequelize = require("../koneksi");
 const Doctor = require("./doctor");
 const Patient = require("./patient");
 
-const Appointment = sequelize.define("appointment",{
+const Appointment = sequelize.define("Appointment",{
     id_appointment:{
         type: DataTypes.STRING,
         primaryKey: true,
@@ -29,11 +29,16 @@ const Appointment = sequelize.define("appointment",{
         type: DataTypes.TIME,
         allowNull: false,
     },
+    patient_note:{
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     status:{
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
     },
+    
     created_at:{
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

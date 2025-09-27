@@ -12,7 +12,7 @@
     <form id="appointmentForm" method="post" action="/createappointment">
       <!-- <div class="mb-3"> -->
         <!-- <label for="id_appointment" class="form-label">Appointment ID</label> -->
-        <input type="text" class="form-control" id="id_doctor" name="id_doctor" required>
+        <input type="hidden" class="form-control" id="id_doctor" name="id_doctor" required>
       <!-- </div> -->
 
       <div class="mb-3">
@@ -22,7 +22,7 @@
 
       <!-- <div class="mb-3"> -->
         <!-- <label for="id_patient" class="form-label">Patient ID</label> -->
-        <input type="text" class="form-control" id="id_patient" name="id_patient" value="P001" required>
+        <input type="hidden" class="form-control" id="id_patient" name="id_patient" value="P001" required>
       <!-- </div> -->
 
       <!-- <div class="mb-3">
@@ -44,7 +44,12 @@
     <option value="16:00">04:00 PM</option>
   </select>
 </div>
-      
+    
+<div class="mb-3">
+        <label for="patient_note" class="form-label">Masukkan keluhan anda</label>
+        <input type="text" class="form-control" id="patient_note" name="patient_note" placeholder="Sakit kepala, mual..">
+      </div>
+
       <!-- <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select class="form-select" id="status" name="status" required>

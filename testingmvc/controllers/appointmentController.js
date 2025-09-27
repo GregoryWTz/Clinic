@@ -68,6 +68,10 @@ async function createAppointment(data){
         else{
             Nqueue = 1
         }
+        let keluhan = "-"
+        if(data.patient_note){
+            keluhan = data.patient_note;
+        }
         const apt = await Appointment.create({
             id_appointment : id,
             id_doctor : data.id_doctor,
@@ -75,6 +79,7 @@ async function createAppointment(data){
             queue : Nqueue,
             appointment_date : data.appointment_date,
             appointment_time : data.appointment_time,
+            patient_note: keluhan,
             status : "SCHEDULE",
             
         });

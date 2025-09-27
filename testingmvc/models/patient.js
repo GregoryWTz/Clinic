@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require("../koneksi");
 const phoneValidationRegex = /\d{3}-\d{3}-\d{4}/ 
-const Patient = sequelize.define("Patients",{
+const Patient = sequelize.define("Patient",{
     id_patient:{
         type: DataTypes.STRING,
         primaryKey: true,

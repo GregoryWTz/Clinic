@@ -2,6 +2,7 @@ const sequelize = require("./koneksi");
 const DoctorController = require("./controllers/doctorController");
 const categoryController = require("./controllers/categoryController");
 const appointmentController = require("./controllers/appointmentController");
+const recordController = require("./controllers/RecordController");
 const querystring = require("querystring");
 
 sequelize.sync().then((result)=>{
@@ -149,6 +150,35 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+    }
+      else if (req.url  === "/medicalrecord" && req.method === "GET") {
+        fs.readFile(path.join(__dirname, "views", "medicalRecord.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+                
+                try{
+                    recordController.getAllRecord("P001").then(apt=>{
+                        const html = data.toString().replace("<!--RECORD_DATA-->", JSON.stringify(apt));
+                        res.writeHead(200, {"Content-Type":"text/html"});
+                        console.log(apt);
+                        res.write(html);
+                    });
+             
+                  
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+                    
+            }
+        });
+        
     }
 });
 server.listen(3000, ()=> {

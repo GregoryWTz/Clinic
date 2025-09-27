@@ -44,14 +44,15 @@ async function handleProfile(req, res, userId) {
                 res.end('Error loading profile page');
             } else {
                 let filled = content
-                    .replace('{{firstname}}', user.firstname)
-                    .replace('{{lastname}}', user.lastname)
+                    .replace('{{first_name}}', user.first_name)
+                    .replace('{{last_name}}', user.last_name)
+                    .replace('{{phone_number}}', user.phone_number)
                     .replace('{{email}}', user.email)
-                    .replace('{{phone}}', user.phone)
+                    .replace('{{city_of_birth}}', user.city_of_birth)
+                    .replace('{{date_of_birth}}', user.date_of_birth)
                     .replace('{{address}}', user.address)
-                    .replace('{{birthdate}}', user.birthdate)
                     .replace('{{gender}}', user.gender)
-                    .replace('{{bloodType}}', user.bloodType);
+                    .replace('{{blood_type}}', user.blood_type)
 
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(filled);
