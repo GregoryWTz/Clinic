@@ -89,7 +89,7 @@
         else{
             let value = select.options[select.selectedIndex].value.toLowerCase();
             console.log(value);
-            const filtered = doctors.filter(d => d.category.name.toLowerCase().includes(value));
+            const filtered = doctors.filter(d => d.Category.name.toLowerCase().includes(value));
             console.log(filtered);
             showDoctor(filtered);
         }
