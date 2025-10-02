@@ -22,7 +22,7 @@
 
       <!-- <div class="mb-3"> -->
         <!-- <label for="id_patient" class="form-label">Patient ID</label> -->
-        <input type="hidden" class="form-control" id="id_patient" name="id_patient" value="P001" required>
+        <input type="hidden" class="form-control" id="id_patient" name="id_patient"  required>
       <!-- </div> -->
 
       <!-- <div class="mb-3">
@@ -66,11 +66,15 @@
   <script>
 
     const doctor = <!--DOCTOR_DATA-->;
+    const patient = <!--PATIENT_DATA-->;
     const input = document.getElementById("nama_doctor");
     const id_doctor = document.getElementById("id_doctor");
-    input.value = doctor.name;
+    const id_patient = document.getElementById("id_patient");
+    input.value = doctor.first_name + " " + doctor.last_name;
     id_doctor.value = doctor.id_doctor;
     input.disabled  = true;   
+
+    id_patient.value= patient.id_patient;
 
 
   </script>

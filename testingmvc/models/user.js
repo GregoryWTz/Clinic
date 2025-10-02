@@ -1,52 +1,42 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require("../koneksi");
-const User = require("./user");
+const phoneValidationRegex = /\d{3}-\d{3}-\d{4}/ 
 
-const Patient = sequelize.define("Patient",{
-    id_patient:{
+const User = sequelize.define("User",{
+    id_user:{
         type: DataTypes.STRING,
         primaryKey: true,
         allowNull: false
     },
-    id_user:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    first_name: {
+    username: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    last_name: {
-        type: DataTypes.STRING,
+    role: {
+        type: DataTypes.ENUM("admin", "doctor", "patient", "pharmacist"),
         allowNull: false,
+       
     },
-    gender: {
+    phone: {
         type: DataTypes.STRING,
         allowNull: false,
+        
         validate:{
-            isIn: [["Male", "Female"]]
+                validator: function(v) {
+                return phoneValidationRegex.test(v);      
+            },
         }
     },
-    city_of_birth: {
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    password: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    date_of_birth:{
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    blood_type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-     address: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-     condition: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
+    
     created_at:{
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
@@ -60,14 +50,9 @@ const Patient = sequelize.define("Patient",{
 
 },
 {
-        tableName: "patients",
+        tableName: "users",
         timestamps: false,
     }  
     
 );
-Patient.belongsTo(User, {
-  foreignKey: "id_user",
-  targetKey: "id_user"
-});
-
-module.exports = Patient;
+module.exports = User;

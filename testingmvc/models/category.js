@@ -11,7 +11,7 @@ const Category = sequelize.define("Category",{
         type: DataTypes.STRING,
         allowNull: false,
     },
-    created_at:{
+    created_at:{    
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false

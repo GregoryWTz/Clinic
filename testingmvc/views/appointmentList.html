@@ -11,7 +11,9 @@
 
   <div class="container my-4">
     <h1 class="mb-4 text-center">Appointment List</h1>
-    
+    <a href="/doctors">
+            <button type="button">doctor</button>
+        </a>
     <div class="row" id="card-list">
       <!-- <div class="col-12 mb-3">
         <div class="card shadow-sm">
@@ -41,7 +43,8 @@
         <div class="card shadow-sm">
           <div class="card-body d-flex justify-content-between align-items-center">
             <div>
-              <h5 class="card-title mb-1">${elm.Doctor.name}</h5>
+              <h5 class="card-title mb-1">${elm.id_appointment}</h5>
+              <p class="mb-0"><strong>Doctor name:</strong>${elm.Doctor.first_name} ${elm.Doctor.last_name}</p>
               <p class="mb-0"><strong>Queue:</strong>${elm.queue}</p>
               <p class="mb-0"><strong>Date:</strong>${elm.appointment_date}</p>
               <p class="mb-0"><strong>Time:</strong>${elm.appointment_time}</p>

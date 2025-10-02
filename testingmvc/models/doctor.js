@@ -1,18 +1,26 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require("../koneksi");
 const Category = require("./category");
-const phoneValidationRegex = /\d{3}-\d{3}-\d{4}/ 
+const User = require("./user");
 const Doctor = sequelize.define("Doctor",{
     id_doctor:{
         type: DataTypes.STRING,
         primaryKey: true,
         allowNull: false
     },
+    id_user:{
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     id_category: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    name: {
+    first_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    last_name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -23,25 +31,13 @@ const Doctor = sequelize.define("Doctor",{
             isIn: [["Male", "Female"]]
         }
     },
-    phone: {
+   degree: {
         type: DataTypes.STRING,
         allowNull: false,
-        
-        validate:{
-                validator: function(v) {
-                return phoneValidationRegex.test(v);      
-            },
-        }
     },
-    email: {
+    experience: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
-    },
-    photo:
-    {
-        type: DataTypes.BLOB,
-        allowNull:true
     },
     created_at:{
         type: DataTypes.DATE,
@@ -65,5 +61,9 @@ const Doctor = sequelize.define("Doctor",{
 Doctor.belongsTo(Category, {
   foreignKey: "id_category",
   targetKey: "id_category"
+});
+Doctor.belongsTo(User, {
+  foreignKey: "id_user",
+  targetKey: "id_user"
 });
 module.exports = Doctor;
