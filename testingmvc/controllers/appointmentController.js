@@ -17,6 +17,8 @@ async function getAllSchedule(idPK) {
     }
 }
 
+
+
 async function deleteSchedule(idPK){
     try{
             await Appointment.destroy({
@@ -103,6 +105,18 @@ async function createAppointment(data){
         throw err;
     }
     
+}
+
+async function adminGetAllSchedule(){
+     try{
+        const apt = await Appointment.findAll({
+            include: Doctor
+        });
+        return apt;
+    }
+    catch(err){
+        throw err;
+    }
 }
 
 module.exports = {createAppointment, getAllSchedule, deleteSchedule}

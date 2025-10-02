@@ -42,6 +42,7 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+    // KODE WILL GREG POST LOGIN
 
     else if (req.method === 'POST' && req.url === '/login'){
         let body = '';
@@ -96,7 +97,7 @@ const server = http.createServer((req, res) => {
          });
     }
 
-    // KODE GREGORIUS WILLIAM SIGNUP
+    // KODE GREGORIUS WILLIAM GET SIGNUP
     else if (req.method === 'GET' && req.url === '/signup') {
         fs.readFile(path.join(__dirname, "views", "signup.html"), (err, data)=>{
             if (err) {
@@ -111,6 +112,7 @@ const server = http.createServer((req, res) => {
         });
     }
 
+    // KODE WILL GREG POST SIGNUP
     else if (req.method === 'POST' && req.url === '/signup') {
         let body = '';
         req.on('data', chunk => {
@@ -193,6 +195,7 @@ const server = http.createServer((req, res) => {
         res.end();
     }
 
+    // KODE TAMPILAN DOKTER
     else if (req.url  === "/doctors" && req.method === "GET") {
 
         fs.readFile(path.join(__dirname, "views", "doctor.html"), (err, data) => {
@@ -226,6 +229,7 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+    // KODE APPOINTMENT POST
     else if (req.url  === "/appointment" && req.method === "POST") {
         let body = "";
             req.on("data", chunk => {
@@ -259,6 +263,7 @@ const server = http.createServer((req, res) => {
         
     }
 
+    // KODE CREATE APPOINTMENT
     else if(req.url  === "/createappointment" && req.method === "POST"){
         let body = "";
             req.on("data", chunk => {
@@ -293,6 +298,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+    // KODE GET APPOINTMENT LIST
     else if (req.url  === "/appointmentlist" && req.method === "GET") {
         fs.readFile(path.join(__dirname, "views", "appointmentList.html"), (err, data) => {
             if (err) {
@@ -326,6 +333,7 @@ const server = http.createServer((req, res) => {
         });
         
     }
+    // KODE DELETE APPOINTMENT
     else if (urlsplit[2] === "delete" && urlsplit[1] === "appointmentlist" && req.method === "GET") {
         const id = urlsplit[3]; 
         try{
@@ -342,6 +350,8 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
     }
+
+    // KODE TAMPILAN MEDICAL RECORD
       else if (req.url  === "/medicalrecord" && req.method === "GET") {
         fs.readFile(path.join(__dirname, "views", "medicalRecord.html"), (err, data) => {
             if (err) {
@@ -375,6 +385,108 @@ const server = http.createServer((req, res) => {
             }
         });
         
+    }
+
+    // KODE TAMPILAN CATEGORY
+    else if(req.url  === "/admincategory" && req.method === "GET"){
+        fs.readFile(path.join(__dirname, "views/admin", "admincategory.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+                try{    
+                   categoryController.getAllCategory().then(categories=>{
+                        const html = data.toString().replace("<!--CATEGORY_DATA-->", JSON.stringify(categories));
+                        res.writeHead(200, {"Content-Type":"text/html"});
+                        res.end(html);
+                    });
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+                    
+            }
+        });
+    }
+
+    // KODE CREATE CATEGORY
+    else if(req.url  === "/admincategory" && req.method === "POST"){
+         let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);
+            console.log(body);
+            if(!formData.name){
+                res.writeHead(400, {"Content-Type": "text/plain"});
+                return res.end("Error: Semua harus diisi!");
+            }
+
+            try{
+                categoryController.createCategory(formData).then(apt =>{
+                    // console.log(apt);
+                    if (!apt) {  
+                        res.writeHead(200, { "Content-Type": "text/html" });
+                        res.end('<p style="color:red;">Antrian sudah penuh dan tidak bisa daftar</p>');
+                    }else{
+                        res.writeHead(302, { Location: '/admincategory' });
+                        res.end();    
+                    }
+                    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+     // KODE DELETE CATEGORY
+    else if (urlsplit[2] === "delete" && urlsplit[1] === "admincategory" && req.method === "GET") {
+        const id = urlsplit[3]; 
+        try{
+                categoryController.deleteCategory(id).then(apt =>{
+                    // console.log(apt);
+                    res.writeHead(302, {"Location" : "/admincategory"});
+                    res.end();
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+    }
+
+    // tampilkan admin appointment
+    else if(req.url  === "/adminappointment" && req.method === "GET"){
+        fs.readFile(path.join(__dirname, "views/admin", "adminAppointment.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+                try{    
+                        res.writeHead(200, {"Content-Type":"text/html"});
+                        res.end(data);
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+                    
+            }
+        });
     }
 });
 server.listen(3000, ()=> {
