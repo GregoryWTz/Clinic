@@ -6,9 +6,9 @@ const recordController = require("./controllers/RecordController");
 const querystring = require("querystring");
 
 sequelize.sync().then((result)=>{
-    // console.log(result);
+    console.log(result);
 }).catch((err)=>{
-    // console.log(err);
+    console.log(err);
 });
 const http = require("http");
 const fs = require("fs");
