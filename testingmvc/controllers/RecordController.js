@@ -25,6 +25,8 @@ async function getAllRecord(idPt){
         throw err;
     }
 
+    
 }
+
 
 module.exports = {getAllRecord}
