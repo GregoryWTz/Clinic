@@ -66,4 +66,5 @@ Doctor.belongsTo(User, {
   foreignKey: "id_user",
   targetKey: "id_user"
 });
+
 module.exports = Doctor;

@@ -1,4 +1,5 @@
 const Doctor = require("../models/doctor");
+const Patient = require("../models/patient");
 const Appointment = require("../models/appointment");
 
 async function getAllSchedule(idPK) {
@@ -52,7 +53,8 @@ async function createAppointment(data){
                 where: {
                     id_doctor: data.id_doctor,
                     appointment_date : data.appointment_date,
-                    appointment_time : data.appointment_time
+                    appointment_time : data.appointment_time,
+                    status: "SCHEDULE"
                     }
                 });
                 if(checkdata.count >= 10){
@@ -110,7 +112,8 @@ async function createAppointment(data){
 async function adminGetAllSchedule(){
      try{
         const apt = await Appointment.findAll({
-            include: Doctor
+            include:  [Doctor,Patient],
+            order: [["last_updated_at", "DESC"]]
         });
         return apt;
     }
@@ -119,4 +122,62 @@ async function adminGetAllSchedule(){
     }
 }
 
-module.exports = {createAppointment, getAllSchedule, deleteSchedule}
+async function updateStatus(data) {
+    try{
+        const updated = await Appointment.update({
+            status: data.status,
+            last_updated_at: Date.now() 
+        },
+        {
+            where: {
+                id_appointment: data.id_appointment
+            }
+        }
+    );
+        return updated;
+
+    }
+    catch(err){
+        throw err;
+    }
+}
+
+async function activeAppointment(id_doctors) {
+    try {
+        const doctor = await Appointment.findOne({
+            where: {
+                id_doctor: id_doctors,
+                status: "SCHEDULE"
+            }
+        })
+        if(doctor){
+            return true;
+        }
+        else{
+            return false
+        }
+    }
+    catch(err){
+        throw err;
+    }
+}
+
+async function haveAppointment(id_patients) {
+    try {
+        const patient = await Appointment.findOne({
+            where: {
+                id_patient: id_patients,
+            }
+        })
+        if(patient){
+            return true;
+        }
+        else{
+            return false
+        }
+    }
+    catch(err){
+        throw err;
+    }
+}
+module.exports = {createAppointment, getAllSchedule, deleteSchedule, adminGetAllSchedule, updateStatus, activeAppointment, haveAppointment}

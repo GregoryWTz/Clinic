@@ -151,7 +151,7 @@ const server = http.createServer((req, res) => {
                     }
                     else {
                         
-                        userController.createUser(formData).then(apt =>{
+                        userController.createUserPatient(formData).then(apt =>{
                         res.writeHead(302, {"Location" : "/"});
                         res.end();
                     });
@@ -476,8 +476,11 @@ const server = http.createServer((req, res) => {
             } 
             else {
                 try{    
-                        res.writeHead(200, {"Content-Type":"text/html"});
-                        res.end(data);
+                        appointmentController.adminGetAllSchedule().then(apt=>{
+                            const html = data.toString().replace("<!--APPOINTMENT_DATA-->", JSON.stringify(apt));
+                            res.writeHead(200, {"Content-Type":"text/html"});
+                            res.end(html);
+                        });
                 }
                 catch(err){
                     console.log("Gagal memanggil data");
@@ -488,7 +491,247 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+// update appointment
+    else if(req.url  === "/adminappointment" && req.method === "POST"){
+        let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);            
+            try{
+                appointmentController.updateStatus(formData).then(apt =>{
+                    // console.log(apt);
+                    
+                        res.writeHead(302, {"Location" : "/adminappointment"});
+                        res.end();    
+                    
+                    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+     else if(req.url  === "/admindoctor" && req.method === "GET"){
+        fs.readFile(path.join(__dirname, "views/admin", "admindoctor.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+               try{
+                    
+                   
+                    DoctorController.getAllDoctor().then(doctors=>{
+                        categoryController.getAllCategory().then(categories=>{
+                            const html = data.toString().replace("<!--DOCTOR_DATA-->", JSON.stringify(doctors))
+                            .replace("<!--CATEGORY_DATA-->", JSON.stringify(categories));
+                            res.writeHead(200, {"Content-Type":"text/html"});
+                            res.end(html);
+                        })
+                    
+                    });
+                
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+            }
+        });
+    }
+
+   // KODE CREATE APPOINTMENT
+    else if(req.url  === "/admindoctor" && req.method === "POST"){
+        let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);
+            console.log(body);
+            if(formData.category === "default" || !formData.first_name || !formData.last_name ||!formData.experience | !formData.gender ||!formData.degree){
+                res.writeHead(400, {"Content-Type": "text/plain"});
+                return res.end("Error: Semua harus diisi!");
+            }
+
+            try{
+                userController.createUserDoctor(formData).then(apt =>{
+                    console.log(apt);
+                    
+                        res.writeHead(302, {"Location" : "/admindoctor"});
+                        res.end();    
+                    
+                    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+
+    // update admindoctor
+    else if(req.url  === "/updateadmindoctor" && req.method === "POST"){
+        let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);            
+            try{
+                DoctorController.updateDoctor(formData).then(apt =>{
+                        res.writeHead(302, {"Location" : "/admindoctor"});
+                        res.end();    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+
+    // delete admin doctor
+
+     else if (urlsplit[2] === "delete" && urlsplit[1] === "admindoctor" && req.method === "GET") {
+        const id = urlsplit[3]; 
+        try{
+                DoctorController.deleteDoctor(id).then(apt =>{
+                    // console.log(apt);
+                    res.writeHead(302, {"Location" : "/admindoctor"});
+                    res.end();
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+    }
+// tampilan adminpatient
+ else if(req.url  === "/adminpatient" && req.method === "GET"){
+        fs.readFile(path.join(__dirname, "views/admin", "adminpatient.html"), (err, data) => {
+            if (err) {
+                console.log("Gagal memanggil view");
+                res.writeHead(500, {"Content-Type":"text/plain"});
+                res.end("Gagal mengambil view");
+            } 
+            else {
+               try{
+                    
+                   
+                    patientController.getAllPatient().then(pt=>{
+                            const html = data.toString().replace("<!--PATIENT_DATA-->", JSON.stringify(pt))
+                            res.writeHead(200, {"Content-Type":"text/html"});
+                            res.end(html);
+                        })
+                    
+                
+                }
+                catch(err){
+                    console.log("Gagal memanggil data");
+                    res.writeHead(500, {"Content-Type":"text/plain"});
+                    res.end("Gagal mengambil data");
+                }
+            }
+        });
+    }
+
+     // KODE CREATE adminpatient
+    else if(req.url  === "/adminpatient" && req.method === "POST"){
+        let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);
+            console.log(body);
+            if(!formData.city_of_birth || !formData.date_of_birth || !formData.address ||  !formData.first_name || !formData.last_name  | !formData.gender || !formData.blood_type || !formData.condition){
+                res.writeHead(400, {"Content-Type": "text/plain"});
+                return res.end("Error: Semua harus diisi!");
+            }
+
+            try{
+                userController.createUserPatient(formData).then(apt =>{
+                    console.log(apt);
+                    
+                        res.writeHead(302, {"Location" : "/adminpatient"});
+                        res.end();    
+                    
+                    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+
+    // update admin patient
+     else if(req.url  === "/updateadminpatient" && req.method === "POST"){
+        let body = "";
+            req.on("data", chunk => {
+                body += chunk.toString();
+            });
+        req.on("end", ()=>{
+            const formData = querystring.parse(body);
+            if(!formData.city_of_birth || !formData.date_of_birth || !formData.address ||  !formData.first_name || !formData.last_name  || !formData.gender || !formData.blood_type || !formData.condition){
+                res.writeHead(400, {"Content-Type": "text/plain"});
+                return res.end("Error: Semua harus diisi!");
+            }            
+            try{
+                patientController.updatePatient(formData.id_patient, formData).then(apt =>{
+                        res.writeHead(302, {"Location" : "/adminpatient"});
+                        res.end();    
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+        });
+    }
+
+    // delete adminpatient
+       else if (urlsplit[2] === "delete" && urlsplit[1] === "adminpatient" && req.method === "GET") {
+        const id = urlsplit[3]; 
+        try{
+                patientController.deletePatient(id).then(apt =>{
+                    // console.log(apt);
+                    res.writeHead(302, {"Location" : "/adminpatient"});
+                    res.end();
+                });
+                
+            }
+            catch(err){
+                    console.log("Gagal memasukkan data");
+                        res.writeHead(500, {"Content-Type":"text/plain"});
+                        res.end("Gagal memasukkan data");
+            }
+    }
+
 });
+
+
 server.listen(3000, ()=> {
     console.log("server berhalan di http://localhost:3000");
 });

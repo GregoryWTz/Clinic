@@ -13,32 +13,15 @@
 
     <!-- Scheduled Appointments -->
     <h4 class="mb-3">NEED APPROVE TO FINISHED</h4>
-    <div class="row g-3 mb-5">
+    <div class="row g-3 mb-5" id="apt-list">
       <!-- Scheduled Card 1 -->
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm h-100 border-primary">
-          <div class="card-body">
-            <h5 class="card-title text-primary">Appointment: <strong>APT001</strong></h5>
-            <p class="mb-1"><strong>Doctor ID:</strong> DR001</p>
-            <p class="mb-1"><strong>Patient ID:</strong> PT001</p>
-            <p class="mb-1"><strong>Queue:</strong> 1</p>
-            <p class="mb-1"><strong>Date:</strong> 2025-10-05</p>
-            <p class="mb-1"><strong>Time:</strong> 09:30</p>
-            <p class="mb-1"><strong>Note:</strong> Follow-up visit</p>
-            <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning text-dark">Pending</span></p>
-            <p class="small text-muted mb-0">Created: 2025-09-25 14:12</p>
-            <p class="small text-muted">Updated: 2025-09-25 14:12</p>
-          </div>
-          <div class="card-footer d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-success">Approve</button>
-          </div>
-        </div>
+      
       </div>
 
 
     <!-- Finished Appointments -->
     <h4 class="mb-3">Finished Appointments</h4>
-    <div class="row g-3">
+    <div class="row g-3" id="finish-list">
       <!-- Finished Card 1 -->
       <div class="col-md-6 col-lg-4">
         <div class="card shadow-sm h-100 border-success">
@@ -60,7 +43,78 @@
 
 
   </div>
+  <script>
+    const apt = JSON.parse('<!--APPOINTMENT_DATA-->');
+    const list = document.getElementById("apt-list");
+    const finish = document.getElementById("finish-list");
+    list.innerHTML = "";
+    finish.innerHTML = ""
+        apt.forEach(elm => {
+                // const card = document.createElement("div.card-body");
+                if(elm.status === "SCHEDULE"){
+                  list.innerHTML += `
+                <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-primary" >
+         
+        
+                    <div class="card-body">
+                    <h5 class="card-title text-primary">Appointment: <strong>${elm.id_appointment}</strong></h5>
+                    <p class="mb-1"><strong>Doctor name:</strong> ${elm.Doctor.first_name} ${elm.Doctor.last_name}</p>
+                    <p class="mb-1"><strong>Patient ID:</strong> ${elm.Patient.first_name} ${elm.Patient.last_name}</p>
+                    <p class="mb-1"><strong>Queue:</strong>${elm.queue}</p>
+                    <p class="mb-1"><strong>Date:</strong>${elm.appointment_date}</p>
+                    <p class="mb-1"><strong>Time:</strong>${elm.appointment_time}</p>
+                    <p class="mb-1"><strong>Note:</strong>${elm.patient_note}</p>
+                    <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning text-dark">${elm.status}</span></p>
+                    <p class="small text-muted mb-0">Created at: ${elm.created_at}</p>
+                    <p class="small text-muted">Last Updated At: ${elm.last_updated_at}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-end gap-2">
+                  <form action="/adminappointment" method="POST" style="display:inline;">
+                    <input type="hidden" name="id_appointment" value="${elm.id_appointment}">
+                    <input type="hidden" name="status" value="FINISHED">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">APPROVE</button>
+                  </form>
+                  <form action="/adminappointment" method="POST" style="display:inline;">
+                    <input type="hidden" name="id_appointment" value="${elm.id_appointment}">
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button type="submit" name="action" value="approve" class="btn btn-danger btn-sm">CANCELLED</button>
+                  </form>
 
+                </div>
+                </div>
+                </div>
+                `;
+                }
+                else{
+                  finish.innerHTML += `
+                <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-primary" >
+         
+        
+                    <div class="card-body">
+                    <h5 class="card-title text-primary">Appointment: <strong>${elm.id_appointment}</strong></h5>
+                    <p class="mb-1"><strong>Doctor name:</strong> ${elm.Doctor.first_name} ${elm.Doctor.last_name}</p>
+                    <p class="mb-1"><strong>Patient ID:</strong> ${elm.Patient.first_name} ${elm.Patient.last_name}</p>
+                    <p class="mb-1"><strong>Queue:</strong>${elm.queue}</p>
+                    <p class="mb-1"><strong>Date:</strong>${elm.appointment_date}</p>
+                    <p class="mb-1"><strong>Time:</strong>${elm.appointment_time}</p>
+                    <p class="mb-1"><strong>Note:</strong>${elm.patient_note}</p>
+                    <p class="mb-1"><strong>Status:</strong> <span class="badge bg-secondary text-light">${elm.status}</span></p>
+                    <p class="small text-muted mb-0">Created at: ${elm.created_at}</p>
+                    <p class="small text-muted">Last Updated At: ${elm.last_updated_at}</p>
+                </div>
+               
+                </div>
+                </div>
+                `;
+                }
+                
+                // list.appendChild(card);
+        });
+
+    
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

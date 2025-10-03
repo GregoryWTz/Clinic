@@ -1,8 +1,9 @@
 const User = require('../models/user');
 const Patient = require('../models/patient');
 const patientController = require("./patientController");
+const doctorController = require("./doctorController");
 
-async function createUser(data){
+async function createUserPatient(data){
     try{
         let id = "";
         const checkempty = await User.findAndCountAll();
@@ -19,12 +20,13 @@ async function createUser(data){
             id = "US" + String(newNum).padStart(3, '0');
         }
 
+        
         const apt = await User.create({
             id_user: id,
-            username: data.username,
-            email: data.email,
-            phone: data.phone,
-            password: data.password,
+            username: data.username || '-',
+            email: data.email || '-',
+            phone: data.phone || '-',
+            password: data.password || '-',
             role: "patient",
             
             
@@ -70,4 +72,59 @@ async function findByEmail(email) {
 async function findById(id) {
     return await User.findByPk(id);
 }
-module.exports = {createUser, findByUsername, findByPhone, findByEmail, findById}
+
+async function createUserDoctor(data) {
+    try{
+        let id = "";
+        const checkempty = await User.findAndCountAll();
+        console.log(checkempty);
+        if(checkempty.count <= 0){
+            id = "US001";
+        }
+        else{
+            const last = await User.findOne({
+                order: [["id_user", "DESC"]]
+            });
+            console.log(last);
+            const newNum = parseInt(last.id_user.slice(2), 10) + 1;
+            id = "US" + String(newNum).padStart(3, '0');
+        }
+
+        const apt = await User.create({
+            id_user: id,
+            username: "-",
+            email: "-",
+            phone: "-",
+            password: "-",
+            role: "doctor",
+            
+            
+        });
+
+        await doctorController.createDoctor(data, id);
+        
+        return apt;    
+
+    }
+    catch(err){
+        throw err;
+    }
+    
+}
+
+async function deleteUser(idPk) {
+    try{
+                await User.destroy({
+                    where: {
+                        id_user: idPk,
+
+                    }
+                });
+                return true
+            
+    }
+    catch(err){
+      throw err
+    }
+}
+module.exports = {createUserPatient, createUserDoctor,findByUsername, findByPhone, findByEmail, findById, deleteUser}
