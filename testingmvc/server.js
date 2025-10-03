@@ -71,14 +71,23 @@ const server = http.createServer((req, res) => {
         
             user.then(us=>{
                 if (us && us.password === formData.password){
-                    res.writeHead(302,
+                    if(us.role === "patient"){
+                        res.writeHead(302,
                         {'Location': '/home',
                         'Set-Cookie': `userId=${us.id_user}; HttpOnly; Path=/`
                         }
-                    );
-                    console.log('Sending Set-Cookie header:',
-            `userId=${us.id_user}; HttpOnly; Path=/`);
+                    );  
                     res.end();
+
+                    }else{
+                        res.writeHead(302,
+                        {'Location': '/homeadmin',
+                        'Set-Cookie': `userId=${us.id_user}; HttpOnly; Path=/`
+                        }
+                    );  
+                    res.end();
+                    }
+                    
                 }
 
                 else {
@@ -167,15 +176,16 @@ const server = http.createServer((req, res) => {
     // KODE WILLIAM GREG HOME
     else if (req.method === 'GET' && req.url === '/home') {
         auth.requireLogin(req, res, (userId) => {
-            cur_user = userId
-            fs.readFile(path.join(__dirname, "views", "home.html"), (err, data)=>{
+            userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
+                    fs.readFile(path.join(__dirname, "views", "home.html"), (err, data)=>{
                             if (err) {
                                 console.log("Gagal memanggil view");
                                 res.writeHead(500, {"Content-Type":"text/plain"});
                                 res.end("Gagal mengambil view");
                             } 
                             else{
-                                userController.findById(cur_user).then(user=>{
+                                userController.findById(userId).then(user=>{
                                     res.writeHead(200, { 'Content-Type': 'text/html' });
                                     cur_role = user.role;
                                     res.end(data + user.role);
@@ -183,9 +193,52 @@ const server = http.createServer((req, res) => {
                                 
                             }
                         });
+                }
+                else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/login"; 
+        </script>`);
+    }
+            })
+            
         });
     }
 
+    else if (req.method === 'GET' && req.url === '/homeadmin') {
+        auth.requireLogin(req, res, (userId) => {
+            userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
+                    fs.readFile(path.join(__dirname, "views", "homeadmin.html"), (err, data)=>{
+                            if (err) {
+                                console.log("Gagal memanggil view");
+                                res.writeHead(500, {"Content-Type":"text/plain"});
+                                res.end("Gagal mengambil view");
+                            } 
+                            else{
+                                userController.findById(userId).then(user=>{
+                                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                                    cur_role = user.role;
+                                    res.end(data + user.role);
+                                })
+                                
+                            }
+                        });
+                }
+                else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/login"; 
+        </script>`);
+    }
+            })
+            
+        });
+    }
     // KODE WILLIAM GREG LOGOUT
     else if (req.method === 'GET' && req.url === '/logout') {
         res.writeHead(302, {
@@ -197,7 +250,9 @@ const server = http.createServer((req, res) => {
 
     // KODE TAMPILAN DOKTER
     else if (req.url  === "/doctors" && req.method === "GET") {
-
+auth.requireLogin(req, res, (userId) => {
+    userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
         fs.readFile(path.join(__dirname, "views", "doctor.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -221,7 +276,6 @@ const server = http.createServer((req, res) => {
                 
                 }
                 catch(err){
-                    console.log("Gagal memanggil data");
                     res.writeHead(500, {"Content-Type":"text/plain"});
                     res.end("Gagal mengambil data");
                 }
@@ -229,8 +283,22 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
+        });
+    }
     // KODE APPOINTMENT POST
     else if (req.url  === "/appointment" && req.method === "POST") {
+auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -260,11 +328,26 @@ const server = http.createServer((req, res) => {
                     }
                 });
             });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
+        });
         
     }
 
     // KODE CREATE APPOINTMENT
     else if(req.url  === "/createappointment" && req.method === "POST"){
+auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
+
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -279,10 +362,12 @@ const server = http.createServer((req, res) => {
 
             try{
                 appointmentController.createAppointment(formData).then(apt =>{
-                    // console.log(apt);
                     if (!apt) {  
                         res.writeHead(200, { "Content-Type": "text/html" });
-                        res.end('<p style="color:red;">Antrian sudah penuh dan tidak bisa daftar</p>');
+                        res.end(`<script>
+            alert("Antrian sudah penuh");
+            window.location.href = "/appointmentlist"; 
+        </script>`);
                     }else{
                         res.writeHead(302, {"Location" : "/appointmentlist"});
                         res.end();    
@@ -296,11 +381,27 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+            });
+  }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
+        
         });
     }
 
     // KODE GET APPOINTMENT LIST
     else if (req.url  === "/appointmentlist" && req.method === "GET") {
+auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
+
         fs.readFile(path.join(__dirname, "views", "appointmentList.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -330,11 +431,26 @@ const server = http.createServer((req, res) => {
                 }
                     
             }
+            });
+ }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
         });
         
     }
     // KODE DELETE APPOINTMENT
     else if (urlsplit[2] === "delete" && urlsplit[1] === "appointmentlist" && req.method === "GET") {
+auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
+        
         const id = urlsplit[3]; 
         try{
                 appointmentController.deleteSchedule(id).then(apt =>{
@@ -349,10 +465,26 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+   }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
+        });
+
     }
 
     // KODE TAMPILAN MEDICAL RECORD
       else if (req.url  === "/medicalrecord" && req.method === "GET") {
+auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "patient"){
+
         fs.readFile(path.join(__dirname, "views", "medicalRecord.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -383,12 +515,30 @@ const server = http.createServer((req, res) => {
                 }
                     
             }
+            
+            
         });
+        
+ }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+            });
+        });
+
         
     }
 
     // KODE TAMPILAN CATEGORY
     else if(req.url  === "/admincategory" && req.method === "GET"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         fs.readFile(path.join(__dirname, "views/admin", "admincategory.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -412,9 +562,23 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+    else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
+    }
 
     // KODE CREATE CATEGORY
     else if(req.url  === "/admincategory" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
          let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -432,7 +596,11 @@ const server = http.createServer((req, res) => {
                     // console.log(apt);
                     if (!apt) {  
                         res.writeHead(200, { "Content-Type": "text/html" });
-                        res.end('<p style="color:red;">Antrian sudah penuh dan tidak bisa daftar</p>');
+                        res.end(`
+             <script>
+            alert("Category sudah ada");
+            window.location.href = "/admincategory"; 
+        </script>`);
                     }else{
                         res.writeHead(302, { Location: '/admincategory' });
                         res.end();    
@@ -447,15 +615,43 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+         }
+    else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
      // KODE DELETE CATEGORY
     else if (urlsplit[2] === "delete" && urlsplit[1] === "admincategory" && req.method === "GET") {
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         const id = urlsplit[3]; 
         try{
                 categoryController.deleteCategory(id).then(apt =>{
-                    // console.log(apt);
+                    console.log(apt);
+                    
+                    if(apt === false){
+                    res.writeHead(200,  { "Content-Type": "text/html"});
+
+                        res.end(`
+             <script>
+            alert("Ada dokter dengan bidang ini");
+            window.location.href = "/admincategory"; 
+        </script>`);
+                        
+                    }
+                    else{
                     res.writeHead(302, {"Location" : "/admincategory"});
                     res.end();
+
+                    }
                 });
                 
             }
@@ -464,10 +660,24 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
     // tampilkan admin appointment
     else if(req.url  === "/adminappointment" && req.method === "GET"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         fs.readFile(path.join(__dirname, "views/admin", "adminAppointment.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -490,9 +700,23 @@ const server = http.createServer((req, res) => {
                     
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 // update appointment
     else if(req.url  === "/adminappointment" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -516,8 +740,22 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+          }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
      else if(req.url  === "/admindoctor" && req.method === "GET"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         fs.readFile(path.join(__dirname, "views/admin", "admindoctor.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -546,10 +784,24 @@ const server = http.createServer((req, res) => {
                 }
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
    // KODE CREATE APPOINTMENT
     else if(req.url  === "/admindoctor" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -579,10 +831,24 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
     // update admindoctor
     else if(req.url  === "/updateadmindoctor" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -602,17 +868,44 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
     // delete admin doctor
 
      else if (urlsplit[2] === "delete" && urlsplit[1] === "admindoctor" && req.method === "GET") {
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         const id = urlsplit[3]; 
         try{
                 DoctorController.deleteDoctor(id).then(apt =>{
                     // console.log(apt);
+                    if(apt === false){
+                    res.writeHead(200,  { "Content-Type": "text/html"});
+
+                        res.end(`
+             <script>
+            alert("Dokter masih aktif");
+            window.location.href = "/admindoctor"; 
+        </script>`);
+                        
+                    }
+                    else{
                     res.writeHead(302, {"Location" : "/admindoctor"});
                     res.end();
+
+                    }
                 });
                 
             }
@@ -621,9 +914,23 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+            }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 // tampilan adminpatient
  else if(req.url  === "/adminpatient" && req.method === "GET"){
+    auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         fs.readFile(path.join(__dirname, "views/admin", "adminpatient.html"), (err, data) => {
             if (err) {
                 console.log("Gagal memanggil view");
@@ -649,10 +956,24 @@ const server = http.createServer((req, res) => {
                 }
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
      // KODE CREATE adminpatient
     else if(req.url  === "/adminpatient" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -682,10 +1003,24 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
     // update admin patient
      else if(req.url  === "/updateadminpatient" && req.method === "POST"){
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         let body = "";
             req.on("data", chunk => {
                 body += chunk.toString();
@@ -709,16 +1044,42 @@ const server = http.createServer((req, res) => {
                         res.end("Gagal memasukkan data");
             }
         });
+        }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
     // delete adminpatient
        else if (urlsplit[2] === "delete" && urlsplit[1] === "adminpatient" && req.method === "GET") {
+        auth.requireLogin(req, res, (userId) => {
+userController.findById(userId).then(user=>{
+                if(user.role === "admin"){
         const id = urlsplit[3]; 
         try{
                 patientController.deletePatient(id).then(apt =>{
-                    // console.log(apt);
+                    if(apt === false){
+                    res.writeHead(200,  { "Content-Type": "text/html"});
+
+                        res.end(`
+             <script>
+            alert("Pasien masih aktif");
+            window.location.href = "/adminpatient"; 
+        </script>`);
+                        
+                    }
+                    else{
                     res.writeHead(302, {"Location" : "/adminpatient"});
                     res.end();
+
+                    }
                 });
                 
             }
@@ -727,6 +1088,17 @@ const server = http.createServer((req, res) => {
                         res.writeHead(500, {"Content-Type":"text/plain"});
                         res.end("Gagal memasukkan data");
             }
+            }
+        else{
+        res.writeHead(403, { "Content-Type": "text/html"});
+        res.end(`
+             <script>
+            alert("Anda tidak memiliki akses");
+            window.location.href = "/"; 
+        </script>`);
+    }
+});
+        });
     }
 
 });

@@ -15,6 +15,14 @@
     Add Patient
   </button>
 
+  <div class="row align-items-end mb-4">
+    <div class="col-md-4">
+      <label for="patientInput" class="form-label fw-semibold">Search Pasien</label>
+      <input id="patientInput" type="text" class="form-control" placeholder="Enter patient name">
+    </div>
+   
+  </div>
+
   <!-- Patient Table -->
   <div class="card">
     <div class="card-header">Patient List</div>
@@ -154,10 +162,14 @@
             <div class="col">
               <label class="form-label">Blood Type</label>
               <select name="blood_type" id="editBlood" class="form-select">
-                <option>O</option>
-                <option>A</option>
-                <option>B</option>
-                <option>AB</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
               </select>
             </div>
           </div>
@@ -184,9 +196,13 @@
 
 <script>
   const patients = JSON.parse('<!--PATIENT_DATA-->');
+  const input = document.getElementById("patientInput");
 
   const tbody = document.getElementById('patient-body');
-  patients.forEach(p => {
+
+  function showPatient(data) {
+    tbody.innerHTML = '';
+  data.forEach(p => {
     tbody.innerHTML += `
       <tr>
         <td>${p.id_patient}</td>
@@ -209,7 +225,6 @@
       </tr>
     `;
   });
-
   const editButtons = document.querySelectorAll('.btn-edit');
   const editId = document.getElementById('editId');
   const editFN = document.getElementById('editFN');
@@ -237,6 +252,16 @@
       editCondition.value = patient.condition;
     });
   });
+}
+
+showPatient(patients);
+input.addEventListener("input", () => {
+        const name = input.value.toLowerCase();
+        const filtered = patients.filter(d =>`${d.first_name} ${d.last_name}`.toLowerCase().includes(name.toLowerCase()));
+        showPatient(filtered);
+    });
+
+  
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

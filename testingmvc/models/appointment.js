@@ -33,10 +33,10 @@ const Appointment = sequelize.define("Appointment",{
         type: DataTypes.STRING,
         allowNull: true,
     },
-    status:{
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+    status: {
+        type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: "SCHEDULE",
     },
     
     created_at:{
@@ -53,7 +53,7 @@ const Appointment = sequelize.define("Appointment",{
 },
     {
         tableName: "appointment",
-        timestamps: false,
+        timestamps: false
     }    
 );
 

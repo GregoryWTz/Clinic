@@ -25,6 +25,19 @@ async function findDoctor(data){
         throw err;
     }
 }
+async function findDoctorByCategory(id_cat){
+    try{
+        const doctor = await Doctor.findAndCountAll({
+            where: {
+                id_category : id_cat
+            }
+        });
+        return doctor;
+    }
+    catch(err){
+        throw err;
+    }
+}
 
 async function createDoctor(data, id_users) {
     try{
@@ -117,4 +130,4 @@ async function deleteDoctor(idPK){
      
 
 }
-module.exports = {getAllDoctor, findDoctor, updateDoctor, createDoctor, deleteDoctor}
+module.exports = {getAllDoctor, findDoctor, updateDoctor, createDoctor, deleteDoctor, findDoctorByCategory}

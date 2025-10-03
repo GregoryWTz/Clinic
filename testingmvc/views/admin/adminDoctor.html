@@ -14,10 +14,23 @@
   <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
     Add Doctor
   </button>
+<div class="row align-items-end mb-4">
+    <div class="col-md-4">
+      <label for="category-list" class="form-label fw-semibold">Filter by Category</label>
+      <select id="category-list" class="form-select">
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="doctorInput" class="form-label fw-semibold">Search Doctor</label>
+      <input id="doctorInput" type="text" class="form-control" placeholder="Enter doctor name">
+    </div>
+   
+  </div>
 
   <!-- Doctor Table -->
   <div class="card">
     <div class="card-header">Doctor List</div>
+     
     <div class="card-body">
       <table class="table table-bordered table-striped">
         <thead class="table-dark">
@@ -170,9 +183,20 @@
         
     });
     })
-   
 
-    doctors.forEach(elm => {
+    const input = document.getElementById("doctorInput");
+    const select2 = document.getElementById("category-list");
+        select2.innerHTML += `<option value="default" selected>Option</option>`
+        categories.forEach(elm=>{
+            
+            select2.innerHTML += 
+            `<option value=${elm.name}>${elm.name}</option>`;
+            
+        });   
+
+      function showDoctor(data) {
+        container.innerHTML = ""
+    data.forEach(elm => {
       container.innerHTML +=
       `     <tr>
             <td>${elm.id_doctor}</td>
@@ -195,7 +219,7 @@
 
     });
 
-     const btnedit = document.querySelectorAll(".btnedit");
+    const btnedit = document.querySelectorAll(".btnedit");
 
     const editFN = document.getElementById("editFN");
     const editLN = document.getElementById("editLN");
@@ -221,6 +245,42 @@
         select[1].value = doctorCat;
       });
     });
+  }
+
+    showDoctor(doctors);
+
+
+     input.addEventListener("input", () => {
+        const name = input.value.toLowerCase();
+        const filtered = doctors.filter(d =>`${d.first_name} ${d.last_name}`.toLowerCase().includes(name.toLowerCase()));
+        showDoctor(filtered);
+    });
+    
+    select2.addEventListener("click", () =>{
+        let options = select2.querySelectorAll("option");
+        let count = options.length;
+        if(typeof(count) === "undefined" || count < 2){
+            console.log("opsinya tidak ada");
+        }
+    });
+    select2.addEventListener("change", function() {
+
+        if(select2.value == "default")
+        {
+            showDoctor(doctors);
+        }
+        else{
+            let value = select2.options[select2.selectedIndex].value.toLowerCase();
+            console.log(value);
+            const filtered = doctors.filter(d => d.Category.name.toLowerCase().includes(value));
+            console.log(filtered);
+            showDoctor(filtered);
+        }
+    });
+
+    
+
+    
 
 
     

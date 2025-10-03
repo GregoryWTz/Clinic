@@ -1,4 +1,4 @@
-const Doctor = require("../models/doctor");
+const doctorController = require("./doctorController");
 const Category = require("../models/category");
 
 async function getAllCategory(){
@@ -58,11 +58,19 @@ async function createCategory(data) {
 
 async function deleteCategory(idPK) {
      try{
+
+        const doctorada = await doctorController.findDoctorByCategory(idPK)
+        if(doctorada.count > 0){
+            return false;
+        }else{
             await Category.destroy({
             where: {
                 id_category: idPK
-            }
-        });
+            },
+          
+            });
+        }
+            
 
         return true
     }

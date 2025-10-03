@@ -48,6 +48,7 @@ async function createAppointment(data){
         if(checkempty.count <= 0){
             id = "AP001";
         }
+       
         else{
             const checkdata = await Appointment.findAndCountAll({
                 where: {
@@ -58,7 +59,7 @@ async function createAppointment(data){
                     }
                 });
                 if(checkdata.count >= 10){
-                    return false;
+                    return null;
                 }else{
                     const last = await Appointment.findOne({
                     order: [["id_appointment", "DESC"]]
@@ -126,14 +127,16 @@ async function updateStatus(data) {
     try{
         const updated = await Appointment.update({
             status: data.status,
-            last_updated_at: Date.now() 
+            last_updated_at: new Date().toLocaleDateString('en-CA')
         },
         {
             where: {
                 id_appointment: data.id_appointment
-            }
+            },
         }
     );
+            console.log(new Date()); 
+
         return updated;
 
     }
