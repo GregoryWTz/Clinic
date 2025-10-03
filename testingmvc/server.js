@@ -584,7 +584,8 @@ userController.findById(userId).then(user=>{
                 body += chunk.toString();
             });
         req.on("end", ()=>{
-            const formData = querystring.parse(body);
+            const formData = querystring.parse(body)
+            ;
             console.log(body);
             if(!formData.name){
                 res.writeHead(400, {"Content-Type": "text/plain"});
@@ -854,7 +855,11 @@ userController.findById(userId).then(user=>{
                 body += chunk.toString();
             });
         req.on("end", ()=>{
-            const formData = querystring.parse(body);            
+            const formData = querystring.parse(body); 
+            if(formData.category === "default" || !formData.first_name || !formData.last_name ||!formData.experience | !formData.gender ||!formData.degree){
+                res.writeHead(400, {"Content-Type": "text/plain"});
+                return res.end("Error: Semua harus diisi!");
+            }           
             try{
                 DoctorController.updateDoctor(formData).then(apt =>{
                         res.writeHead(302, {"Location" : "/admindoctor"});
