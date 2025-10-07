@@ -56,6 +56,18 @@
                 background-color: #016C6F;
             }
 
+            .steps {
+                background-color: #0E848E;
+            }
+
+            .circle {
+                /* width: ;
+                height: ; */
+                background-color: #FFFFFF;
+                border-radius: 50%;
+                
+            }
+
             /* doctor section */
             #program {
                 background-color: #F5F5F5;
@@ -82,32 +94,44 @@
                 color: #549493;
                 border-bottom: 1px solid #000000;
                 padding-bottom: 5px;
-                margin-bottom: 15px;
+            }
+
+            #doctor-list .row {
+                gap: 20px;
             }
 
             .profile {
                 background-color: #ffffff;
                 box-shadow: 0px 2px 4px #0000001d;
                 padding: 20px;
+                margin-bottom: 20px;
                 }
 
             .cat {
                 border: 1px solid #549493;
                 border-radius: 10px;
                 color: #549493;
-                display: inline-flex;
+                display: inline-block;
                 padding: 5px;
                 align-items: center;
                 justify-content: center;
-                margin-bottom: 5px;
             }
 
             .hoverForm {
-                display: none;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3 ease;
+                text-align: right;
+            }
+
+            .hoverForm button {
+                background-color: #3E8785;
+                border-color: #3E8785;
             }
 
             .profile:hover .hoverForm {
-                display: block;
+                opacity: 1;
+                visibility: visible;
             }
             
         </style>
@@ -149,7 +173,20 @@
                     </div> -->
 
                     <!-- tutorial -->
-                    <div id="tutorial"></div>
+                    <!-- <div id="tutorial">
+                        <h2>How to schedule an appointment with our doctors?</h2>
+                        <div class="row">
+                            <div class="steps">
+                                <div class="column">
+                                    <div class="circle">1</div>
+                                    <p>Find Your Doctor</p>
+                                </div>
+                            </div>
+                            <div class="steps"></div>
+                            <div class="steps"></div>
+                            <div class="steps"></div>
+                        </div>
+                    </div> -->
 
                     <!-- doctor section -->
                     <div id="program">
@@ -225,13 +262,14 @@
                 //doctors in the catagory
                 grouped[category].forEach(elm => {
                     const card = document.createElement("div");
-                    card.classList.add("profile", "col-md-4");
+                    card.classList.add("profile", "col-md-4", "col-sm-6", "col-12");
 
                     card.innerHTML = `
                             <span class="cat">${category}</span>
-                            <h4>${elm.name}</h4>
-                            <p>Email  : ${elm.email}</p>
-                            <p>Gender : ${elm.gender}</p>
+                            <h4>${elm.first_name} ${elm.last_name}</h4>
+                            <p>Degree     : ${elm.degree}</p>
+                            <p>Experience : ${elm.experience}</p>
+                            <p>Gender     : ${elm.gender}</p>
                             <form class="hoverForm" method="POST" action="/appointment">
                                 <input type="hidden" name="id_doctor" value="${elm.id_doctor}"/>
                                 <button type="submit" class="btn btn-primary">Schedule Appointment</button>
@@ -239,33 +277,16 @@
                         
                         `;
                         
-                        //insert the div into categoryDiv
+                        //insert the div into the respected area
+                        row.appendChild(card);
                         categoryDiv.appendChild(row);
-                        categoryDiv.appendChild(card);
                 });
 
                 //insert as the most last/adds
                 list.appendChild(categoryDiv);
             }
             
-            // data.forEach(elm => {
-            //         const card = document.createElement("div");
-                    
-            //         card.innerHTML = `
-                    
-            //             <div class="card p-2 mb-2">
-            //                 <h4>${elm.name}</h4>
-            //                 <p>Email: ${elm.email}</p>
-            //                 <p>Gender: ${elm.gender}</p>
-            //                 <p>category: ${elm.Category.name}</p>
-            //                 <form method="POST" action="/appointment">
-            //                     <input type="hidden" name="id_doctor" value="${elm.id_doctor}"/>
-            //                     <button type="submit" class="btn btn-primary">Booking</button>
-            //                 </form>
-            //             </div>
-            //         `;
-            //         list.appendChild(card);
-            // });
+
 
         }
 
@@ -294,10 +315,16 @@
 
         // handle search filter
         input.addEventListener("input", () => {
-            const name = input.value.toLowerCase();
-            const filtered = doctors.filter(d => d.name.toLowerCase().includes(name));
+            const search = input.value.toLowerCase();
+
+            const filtered = doctors.filter(d => {
+                const fullname = `${d.first_name} ${d.last_name}`.toLowerCase();
+                return fullname.includes(search);
+            });
+
             showDoctor(filtered);
         });
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
