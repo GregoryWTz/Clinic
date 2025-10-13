@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Appointment</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* Hide buttons and unnecessary elements during print */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+      }
+
+      .card {
+        page-break-inside: avoid;
+        border: 1px solid #ddd !important;
+      }
+
+      h2, h4 {
+        color: black !important;
+      }
+    }
+
+    /* Optional: make print button float on top for convenience */
+    #print-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container my-4">
+    <h2 class="mb-4 text-center">Admin Appointment</h2>
+
+    <!-- 🖨️ Print Button -->
+    <div class="no-print text-end mb-3">
+      <button id="print-btn" class="btn btn-outline-secondary" onclick="window.print()">
+        🖨️ Print Appointments
+      </button>
+    </div>
+
+    <!-- Scheduled Appointments -->
+    <h4 class="mb-3">NEED APPROVE TO FINISHED</h4>
+    <div class="row g-3 mb-5" id="apt-list">
+      <!-- Scheduled Cards go here -->
+    </div>
+
+    <!-- Finished Appointments -->
+    <h4 class="mb-3">Finished Appointments</h4>
+    <div class="row g-3" id="finish-list">
+      <!-- Finished Cards go here -->
+    </div>
+  </div>
+
+  <script>
+    const apt = JSON.parse('<!--APPOINTMENT_DATA-->');
+    const list = document.getElementById("apt-list");
+    const finish = document.getElementById("finish-list");
+
+    list.innerHTML = "";
+    finish.innerHTML = "";
+
+    apt.forEach(elm => {
+      if (elm.status === "SCHEDULE") {
+        list.innerHTML += `
+          <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-primary">
+              <div class="card-body">
+                <h5 class="card-title text-primary">
+                  Appointment: <strong>${elm.id_appointment}</strong>
+                </h5>
+                <p class="mb-1"><strong>Doctor:</strong> ${elm.Doctor.first_name} ${elm.Doctor.last_name}</p>
+                <p class="mb-1"><strong>Patient:</strong> ${elm.Patient.first_name} ${elm.Patient.last_name}</p>
+                <p class="mb-1"><strong>Queue:</strong> ${elm.queue}</p>
+                <p class="mb-1"><strong>Date:</strong> ${elm.appointment_date}</p>
+                <p class="mb-1"><strong>Time:</strong> ${elm.appointment_time}</p>
+                <p class="mb-1"><strong>Note:</strong> ${elm.patient_note}</p>
+                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning text-dark">${elm.status}</span></p>
+                <p class="small text-muted mb-0">Created: ${elm.created_at}</p>
+                <p class="small text-muted">Updated: ${elm.last_updated_at}</p>
+              </div>
+              <div class="card-footer d-flex justify-content-end gap-2 no-print">
+                <form action="/adminappointment" method="POST" style="display:inline;">
+                  <input type="hidden" name="id_appointment" value="${elm.id_appointment}">
+                  <input type="hidden" name="status" value="FINISHED">
+                  <button type="submit" class="btn btn-success btn-sm">APPROVE</button>
+                </form>
+                <form action="/adminappointment" method="POST" style="display:inline;">
+                  <input type="hidden" name="id_appointment" value="${elm.id_appointment}">
+                  <input type="hidden" name="status" value="CANCELLED">
+                  <button type="submit" class="btn btn-danger btn-sm">CANCEL</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        finish.innerHTML += `
+          <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-success">
+              <div class="card-body">
+                <h5 class="card-title text-success">
+                  Appointment: <strong>${elm.id_appointment}</strong>
+                </h5>
+                <p class="mb-1"><strong>Doctor:</strong> ${elm.Doctor.first_name} ${elm.Doctor.last_name}</p>
+                <p class="mb-1"><strong>Patient:</strong> ${elm.Patient.first_name} ${elm.Patient.last_name}</p>
+                <p class="mb-1"><strong>Queue:</strong> ${elm.queue}</p>
+                <p class="mb-1"><strong>Date:</strong> ${elm.appointment_date}</p>
+                <p class="mb-1"><strong>Time:</strong> ${elm.appointment_time}</p>
+                <p class="mb-1"><strong>Note:</strong> ${elm.patient_note}</p>
+                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-secondary text-light">${elm.status}</span></p>
+                <p class="small text-muted mb-0">Created: ${elm.created_at}</p>
+                <p class="small text-muted">Updated: ${elm.last_updated_at}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

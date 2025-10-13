@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+    <h1>My Profile</h1>
+
+    <p><strong>First Name:</strong> {{first_name}}</p>
+    <p><strong>Last Name:</strong> {{last_name}}</p>
+    <p><strong>Email:</strong> {{email}}</p>
+    <p><strong>Phone:</strong> {{phone_number}}</p>
+    <p><strong>Address:</strong> {{address}}</p>
+    <p><strong>City of Birth:</strong> {{city_of_birth}}</p>
+    <p><strong>Birthdate:</strong> {{date_of_birth}}</p>
+    <p><strong>Gender:</strong> {{gender}}</p>
+    <p><strong>Blood Type:</strong> {{blood_type}}</p>
+
+    <a href="/profile/edit">
+        <button type="button">Edit Profile</button>
+    </a>
+    <br>
+
+    <form action="/profile/delete" method="POST" style="display:inline;">
+        <button type="submit" style="color:red;">Delete Account</button>
+    </form>
+
+    <p>
+        <a href="/home">
+            <button type="button">Go Back Home</button>
+        </a>
+    </p>
+</body>
+</html>
